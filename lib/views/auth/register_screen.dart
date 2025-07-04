@@ -13,7 +13,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  String selectedRole = 'trainee'; // default role
+  String selectedRole = 'trainee';
   bool _loading = false;
   String _error = "";
 
@@ -26,13 +26,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      // Create user in Firebase Auth
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim());
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
 
-      // Store user details in Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userCredential.user!.uid)
@@ -42,7 +41,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'createdAt': Timestamp.now(),
       });
 
-      // Redirect to dashboard via role router
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -58,6 +56,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final roles = ['admin', 'trainer', 'trainee'];
+
     return Scaffold(
       appBar: AppBar(title: Text("Register")),
       body: Padding(
@@ -67,9 +67,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: ListView(
             children: [
               if (_error.isNotEmpty)
-                Text(_error, style: TextStyle(color: Colors.red)),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Text(_error, style: TextStyle(color: Colors.red)),
+                ),
               TextFormField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(labelText: "Email"),
                 validator: (val) =>
                 val!.isEmpty ? "Please enter your email" : null,
@@ -85,23 +90,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               DropdownButtonFormField<String>(
                 value: selectedRole,
                 decoration: InputDecoration(labelText: "Select Role"),
-                items: ['admin', 'trainer', 'trainee']
-                    .map((role) => DropdownMenuItem(
+                items: roles.map((role) => DropdownMenuItem(
                   value: role,
                   child: Text(role.toUpperCase()),
-                ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedRole = value!;
-                  });
-                },
+                )).toList(),
+                onChanged: (value) => setState(() => selectedRole = value!),
               ),
               SizedBox(height: 20),
               _loading
                   ? Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                  onPressed: _register, child: Text("Register")),
+                onPressed: _register,
+                child: Text("Register"),
+              ),
             ],
           ),
         ),

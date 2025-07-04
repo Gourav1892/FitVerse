@@ -52,13 +52,18 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: ListView(
+            shrinkWrap: true,
             children: [
               if (_error.isNotEmpty)
-                Text(_error, style: TextStyle(color: Colors.red)),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Text(_error, style: TextStyle(color: Colors.red)),
+                ),
               TextFormField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(labelText: "Email"),
                 validator: (val) =>
                 val!.isEmpty ? "Please enter your email" : null,
@@ -72,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 20),
               _loading
-                  ? CircularProgressIndicator()
+                  ? Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                 onPressed: _login,
                 child: Text("Login"),

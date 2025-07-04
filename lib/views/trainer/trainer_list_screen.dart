@@ -10,9 +10,15 @@ class TrainerListScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('trainers').snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
 
           final trainers = snapshot.data!.docs;
+
+          if (trainers.isEmpty) {
+            return Center(child: Text("No trainers available."));
+          }
 
           return ListView.builder(
             itemCount: trainers.length,
@@ -30,7 +36,7 @@ class TrainerListScreen extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (_) => BookTrainerScreen(
                         trainerId: trainers[index].id,
-                        trainerName: data['name'],
+                        trainerName: data['name'] ?? "",
                       ),
                     ),
                   ),

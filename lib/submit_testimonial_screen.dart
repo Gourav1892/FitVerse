@@ -22,8 +22,12 @@ class _SubmitTestimonialScreenState extends State<SubmitTestimonialScreen> {
   }
 
   Future<void> _submit() async {
-    if (_nameController.text.isEmpty || _messageController.text.isEmpty || _selectedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("All fields are required")));
+    if (_nameController.text.isEmpty ||
+        _messageController.text.isEmpty ||
+        _selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("All fields are required")),
+      );
       return;
     }
 
@@ -31,23 +35,31 @@ class _SubmitTestimonialScreenState extends State<SubmitTestimonialScreen> {
 
     try {
       final uid = FirebaseAuth.instance.currentUser!.uid;
-      final ref = FirebaseStorage.instance.ref().child("testimonials").child("$uid.jpg");
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child("testimonials/$uid-$timestamp.jpg");
 
       await ref.putFile(_selectedImage!);
       final imageUrl = await ref.getDownloadURL();
 
       await FirebaseFirestore.instance.collection('testimonials').add({
+        'userId': uid,
         'name': _nameController.text.trim(),
         'message': _messageController.text.trim(),
         'photoUrl': imageUrl,
         'createdAt': Timestamp.now(),
-        'approved': false, // set true automatically or manually later
+        'approved': false,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Submitted for approval")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Submitted for approval")),
+      );
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed: $e")),
+      );
     } finally {
       setState(() => _loading = false);
     }
@@ -61,8 +73,17 @@ class _SubmitTestimonialScreenState extends State<SubmitTestimonialScreen> {
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(controller: _nameController, decoration: InputDecoration(labelText: "Your Name")),
-            TextField(controller: _messageController, decoration: InputDecoration(labelText: "Your Story")),
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: "Your Name"),
+              maxLength: 50,
+            ),
+            TextField(
+              controller: _messageController,
+              decoration: InputDecoration(labelText: "Your Story"),
+              maxLines: 5,
+              maxLength: 500,
+            ),
             SizedBox(height: 10),
             _selectedImage != null
                 ? Image.file(_selectedImage!, height: 150)

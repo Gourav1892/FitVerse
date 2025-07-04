@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
-import 'views/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'views/splash_screen.dart';
 
-
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize Firebase if you're using it
-  Firebase.initializeApp(); // Uncomment if using Firebase
+  await Firebase.initializeApp(); // ✅ Correct Firebase initialization
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
-      title: 'Splash Demo',
+      title: 'Fitness App',
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+      ),
+      home: SplashScreen(), // ✅ Start from splash
     );
   }
 }
-

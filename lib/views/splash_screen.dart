@@ -13,22 +13,22 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(Duration(seconds: 2), () async {
-      final user = FirebaseAuth.instance.currentUser;
+    Future.delayed(Duration(seconds: 2), () {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final user = FirebaseAuth.instance.currentUser;
 
-      if (user != null) {
-        // User is logged in → check role
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => RoleRouter(uid: user.uid)),
-        );
-      } else {
-        // Not logged in → go to login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
-      }
+        if (user != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => RoleRouter(uid: user.uid)),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => LoginScreen()),
+          );
+        }
+      });
     });
   }
 
@@ -40,7 +40,6 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Replace with your logo asset
             Image.asset("assets/logo.png", height: 120),
             SizedBox(height: 20),
             CircularProgressIndicator(),

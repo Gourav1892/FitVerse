@@ -7,6 +7,7 @@ import '../views/user/user_dashboard.dart';
 
 class RoleRouter extends StatelessWidget {
   final String uid;
+
   RoleRouter({required this.uid});
 
   @override
@@ -14,16 +15,26 @@ class RoleRouter extends StatelessWidget {
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance.collection('users').doc(uid).get(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-        final role = snapshot.data?.get('role') ?? 'user';
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Scaffold(
+            body: Center(child: Text("User data not found.")),
+          );
+        }
+
+        final role = snapshot.data?.get('role') ?? 'trainee';
 
         if (role == 'admin') {
           return AdminDashboard();
         } else if (role == 'trainer') {
           return TrainerDashboard();
         } else {
-          return UserDashboard();
+          return UserDashboard(); // default to user
         }
       },
     );

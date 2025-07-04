@@ -18,6 +18,15 @@ class _AddNutritionPlanScreenState extends State<AddNutritionPlanScreen> {
   bool _loading = false;
 
   Future<void> _submit() async {
+    if (_titleController.text.trim().isEmpty ||
+        _levelController.text.trim().isEmpty ||
+        _typeController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please fill all basic fields.")),
+      );
+      return;
+    }
+
     setState(() => _loading = true);
 
     try {
@@ -62,6 +71,8 @@ class _AddNutritionPlanScreenState extends State<AddNutritionPlanScreen> {
             TextField(controller: _titleController, decoration: InputDecoration(labelText: "Plan Title")),
             TextField(controller: _levelController, decoration: InputDecoration(labelText: "Level")),
             TextField(controller: _typeController, decoration: InputDecoration(labelText: "Type")),
+            SizedBox(height: 10),
+            Text("Meals for 2 days", style: TextStyle(fontWeight: FontWeight.bold)),
             ..._meals.entries.expand((entry) {
               final day = entry.key;
               return entry.value.keys.map((meal) => _buildMealInput(day, meal)).toList();

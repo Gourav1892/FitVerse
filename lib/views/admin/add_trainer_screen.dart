@@ -31,7 +31,7 @@ class _AddTrainerScreenState extends State<AddTrainerScreen> {
         'expertise': _expertiseController.text.trim(),
         'bio': _bioController.text.trim(),
         'createdAt': Timestamp.now(),
-        'availability': {}, // Placeholder, editable later
+        'availability': {},
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -39,6 +39,10 @@ class _AddTrainerScreenState extends State<AddTrainerScreen> {
       );
 
       _formKey.currentState?.reset();
+      _nameController.clear();
+      _emailController.clear();
+      _expertiseController.clear();
+      _bioController.clear();
     } catch (e) {
       setState(() => _error = "Error: ${e.toString()}");
     } finally {
@@ -67,8 +71,12 @@ class _AddTrainerScreenState extends State<AddTrainerScreen> {
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(labelText: "Trainer Email"),
-                validator: (val) =>
-                val!.isEmpty ? "Please enter an email" : null,
+                keyboardType: TextInputType.emailAddress,
+                validator: (val) {
+                  if (val == null || val.isEmpty) return "Please enter an email";
+                  if (!val.contains('@')) return "Invalid email";
+                  return null;
+                },
               ),
               TextFormField(
                 controller: _expertiseController,

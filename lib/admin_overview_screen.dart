@@ -48,15 +48,20 @@ class _AdminOverviewScreenState extends State<AdminOverviewScreen> {
       });
     } catch (e) {
       print("Error loading counts: $e");
+      setState(() => loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to load data")),
+      );
     }
   }
 
-  Widget _buildCard(String title, int count, Color color) {
+  Widget _buildCard(String title, int count, Color color, IconData icon) {
     return Card(
       color: color,
       elevation: 3,
       margin: EdgeInsets.symmetric(vertical: 10),
       child: ListTile(
+        leading: Icon(icon, color: Colors.white),
         title: Text(title,
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         trailing: Text("$count",
@@ -71,14 +76,14 @@ class _AdminOverviewScreenState extends State<AdminOverviewScreen> {
       appBar: AppBar(title: Text("Admin Dashboard")),
       body: loading
           ? Center(child: CircularProgressIndicator())
-          : Padding(
+          : SingleChildScrollView(
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            _buildCard("Total Users", userCount, Colors.blue),
-            _buildCard("Total Trainers", trainerCount, Colors.green),
-            _buildCard("Total Bookings", bookingCount, Colors.orange),
-            _buildCard("Success Stories", testimonialCount, Colors.purple),
+            _buildCard("Total Users", userCount, Colors.blue, Icons.people),
+            _buildCard("Total Trainers", trainerCount, Colors.green, Icons.fitness_center),
+            _buildCard("Total Bookings", bookingCount, Colors.orange, Icons.calendar_today),
+            _buildCard("Success Stories", testimonialCount, Colors.purple, Icons.star),
           ],
         ),
       ),

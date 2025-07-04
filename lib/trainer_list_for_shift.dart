@@ -14,6 +14,17 @@ class TrainerListForShift extends StatelessWidget {
 
           final trainers = snapshot.data!.docs;
 
+          if (trainers.isEmpty) {
+            return Center(child: Text("No trainers found."));
+          }
+
+          // Optional: sort by name
+          trainers.sort((a, b) {
+            final nameA = (a.data() as Map<String, dynamic>)['name'] ?? '';
+            final nameB = (b.data() as Map<String, dynamic>)['name'] ?? '';
+            return nameA.compareTo(nameB);
+          });
+
           return ListView.builder(
             itemCount: trainers.length,
             itemBuilder: (context, index) {
@@ -22,6 +33,9 @@ class TrainerListForShift extends StatelessWidget {
               final name = data['name'] ?? 'Unnamed';
 
               return ListTile(
+                leading: data['photoUrl'] != null
+                    ? CircleAvatar(backgroundImage: NetworkImage(data['photoUrl']))
+                    : CircleAvatar(child: Icon(Icons.person)),
                 title: Text(name),
                 subtitle: Text(data['expertise'] ?? ''),
                 trailing: Icon(Icons.edit_calendar),

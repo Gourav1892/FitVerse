@@ -9,9 +9,12 @@ class ViewNutritionScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('nutritionPlans').snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
 
           final plans = snapshot.data!.docs;
+          if (plans.isEmpty) {
+            return Center(child: Text("No nutrition plans available."));
+          }
 
           return ListView.builder(
             itemCount: plans.length,
@@ -20,17 +23,18 @@ class ViewNutritionScreen extends StatelessWidget {
               final meals = data['meals'] as Map<String, dynamic>;
 
               return ExpansionTile(
-                title: Text(data['title']),
-                subtitle: Text("${data['level']} - ${data['type']}"),
+                title: Text(data['title'] ?? 'No Title'),
+                subtitle: Text("${data['level'] ?? 'N/A'} - ${data['type'] ?? 'N/A'}"),
                 children: meals.entries.map((entry) {
                   final day = entry.key;
                   final dayMeals = entry.value as Map<String, dynamic>;
+
                   return ListTile(
                     title: Text(day.toUpperCase()),
                     subtitle: Text(
-                      "Breakfast: ${dayMeals['breakfast']}\n"
-                          "Lunch: ${dayMeals['lunch']}\n"
-                          "Dinner: ${dayMeals['dinner']}",
+                      "Breakfast: ${dayMeals['breakfast'] ?? '-'}\n"
+                          "Lunch: ${dayMeals['lunch'] ?? '-'}\n"
+                          "Dinner: ${dayMeals['dinner'] ?? '-'}",
                     ),
                   );
                 }).toList(),
@@ -42,4 +46,3 @@ class ViewNutritionScreen extends StatelessWidget {
     );
   }
 }
-

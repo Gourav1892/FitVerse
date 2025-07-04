@@ -64,19 +64,30 @@ class _EditTrainerShiftScreenState extends State<EditTrainerShiftScreen> {
   }
 
   void _editDay(String day) async {
+    if (_loading) return;
+
     final controller = TextEditingController();
+    controller.text = availability[day]?.join(", ") ?? "";
+
     final result = await showDialog<List<String>>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Enter comma-separated time slots for $day"),
+        title: Text("Enter time slots for ${day[0].toUpperCase()}${day.substring(1)}"),
         content: TextField(
           controller: controller,
-          decoration: InputDecoration(hintText: "e.g. 10:00,14:00,16:00"),
+          decoration: InputDecoration(hintText: "e.g. 10:00, 14:00, 16:00"),
         ),
         actions: [
           TextButton(
             onPressed: () {
               final times = controller.text.split(',').map((e) => e.trim()).toList();
+              final isValid = times.every((t) => RegExp(r'^\d{1,2}:\d{2}$').hasMatch(t));
+              if (!isValid) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Invalid time format")),
+                );
+                return;
+              }
               Navigator.pop(context, times);
             },
             child: Text("Save"),
@@ -103,7 +114,7 @@ class _EditTrainerShiftScreenState extends State<EditTrainerShiftScreen> {
             final times = availability[day]!.join(", ");
             return Card(
               child: ListTile(
-                title: Text(day.toUpperCase()),
+                title: Text("${day[0].toUpperCase()}${day.substring(1)}"),
                 subtitle: Text(times.isEmpty ? "No Slots" : times),
                 trailing: Icon(Icons.edit),
                 onTap: () => _editDay(day),
@@ -114,7 +125,9 @@ class _EditTrainerShiftScreenState extends State<EditTrainerShiftScreen> {
           _loading
               ? Center(child: CircularProgressIndicator())
               : ElevatedButton(
-              onPressed: _saveAvailability, child: Text("Save All")),
+            onPressed: _saveAvailability,
+            child: Text("Save All"),
+          ),
         ],
       ),
     );

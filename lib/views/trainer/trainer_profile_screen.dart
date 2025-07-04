@@ -11,8 +11,16 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen> {
   final _bioController = TextEditingController();
   final _expertiseController = TextEditingController();
   bool _loading = false;
+  bool _profileLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
 
   Future<void> _loadProfile() async {
+    setState(() => _profileLoading = true);
     final uid = FirebaseAuth.instance.currentUser!.uid;
     final doc = await FirebaseFirestore.instance
         .collection('trainers')
@@ -25,9 +33,17 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen> {
       _bioController.text = data['bio'] ?? '';
       _expertiseController.text = data['expertise'] ?? '';
     }
+    setState(() => _profileLoading = false);
   }
 
   Future<void> _saveProfile() async {
+    if (_bioController.text.trim().isEmpty || _expertiseController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Fields cannot be empty")),
+      );
+      return;
+    }
+
     setState(() => _loading = true);
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
@@ -53,16 +69,12 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _loadProfile();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("My Profile")),
-      body: Padding(
+      body: _profileLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [

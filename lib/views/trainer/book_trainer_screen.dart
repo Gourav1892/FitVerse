@@ -20,6 +20,23 @@ class _BookTrainerScreenState extends State<BookTrainerScreen> {
   Future<void> _submitBooking() async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
+    if (_dateController.text.isEmpty || _timeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter both date and time.")),
+      );
+      return;
+    }
+
+    DateTime? fullDateTime;
+    try {
+      fullDateTime = DateTime.parse("${_dateController.text} ${_timeController.text}");
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Invalid date or time format.")),
+      );
+      return;
+    }
+
     setState(() => _loading = true);
 
     try {
@@ -27,7 +44,7 @@ class _BookTrainerScreenState extends State<BookTrainerScreen> {
         'traineeId': uid,
         'trainerId': widget.trainerId,
         'trainerName': widget.trainerName,
-        'date': DateTime.parse("${_dateController.text} ${_timeController.text}"),
+        'date': fullDateTime,
         'status': 'confirmed',
         'createdAt': Timestamp.now()
       });
@@ -65,7 +82,9 @@ class _BookTrainerScreenState extends State<BookTrainerScreen> {
             _loading
                 ? CircularProgressIndicator()
                 : ElevatedButton(
-                onPressed: _submitBooking, child: Text("Confirm Booking")),
+              onPressed: _submitBooking,
+              child: Text("Confirm Booking"),
+            ),
           ],
         ),
       ),

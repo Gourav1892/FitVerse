@@ -18,6 +18,15 @@ class _AddProgressScreenState extends State<AddProgressScreen> {
   bool _loading = false;
 
   Future<void> _submit() async {
+    if (_noteController.text.trim().isEmpty ||
+        _weightController.text.trim().isEmpty ||
+        _fatController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("All fields are required")),
+      );
+      return;
+    }
+
     setState(() => _loading = true);
 
     try {
@@ -30,6 +39,10 @@ class _AddProgressScreenState extends State<AddProgressScreen> {
         'date': Timestamp.now(),
       });
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Progress saved successfully")),
+      );
+      await Future.delayed(Duration(milliseconds: 500));
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context)

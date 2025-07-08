@@ -11,6 +11,37 @@ import 'package:fitverse/submit_testimonial_screen.dart';
 import 'package:fitverse/view_testimonials_screen.dart';
 
 class UserDashboard extends StatelessWidget {
+  const UserDashboard({super.key});
+
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: Text("Logout"),
+          content: Text("Are you sure you want to logout?"),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.pop(ctx),
+            ),
+            TextButton(
+              child: Text("Logout", style: TextStyle(color: Colors.red)),
+              onPressed: () async {
+                Navigator.pop(ctx); // Close dialog
+                await FirebaseAuth.instance.signOut();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Logged out successfully')),
+                );
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,10 +50,7 @@ class UserDashboard extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.popUntil(context, (route) => route.isFirst);
-            },
+            onPressed: () => _confirmLogout(context),
           )
         ],
       ),

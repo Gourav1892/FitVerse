@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class BookTrainerScreen extends StatefulWidget {
   final String trainerId;
@@ -14,25 +15,50 @@ class BookTrainerScreen extends StatefulWidget {
 
 class _BookTrainerScreenState extends State<BookTrainerScreen> {
   final _dateController = TextEditingController();
-  final _timeController = TextEditingController();
+  final _startTimeController = TextEditingController();
+  final _endTimeController = TextEditingController();
   bool _loading = false;
+
+  Future<void> _pickDate() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (pickedDate != null) {
+      _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+    }
+  }
+
+  Future<void> _pickTime(TextEditingController controller) async {
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (pickedTime != null) {
+      controller.text = pickedTime.format(context);
+    }
+  }
 
   Future<void> _submitBooking() async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
-    if (_dateController.text.isEmpty || _timeController.text.isEmpty) {
+    if (_dateController.text.isEmpty ||
+        _startTimeController.text.isEmpty ||
+        _endTimeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter both date and time.")),
+        SnackBar(content: Text("Please select date, start time, and end time.")),
       );
       return;
     }
 
-    DateTime? fullDateTime;
+    DateTime? fullDate;
     try {
-      fullDateTime = DateTime.parse("${_dateController.text} ${_timeController.text}");
+      fullDate = DateFormat('yyyy-MM-dd').parse(_dateController.text);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Invalid date or time format.")),
+        SnackBar(content: Text("Invalid date format.")),
       );
       return;
     }
@@ -44,7 +70,9 @@ class _BookTrainerScreenState extends State<BookTrainerScreen> {
         'traineeId': uid,
         'trainerId': widget.trainerId,
         'trainerName': widget.trainerName,
-        'date': fullDateTime,
+        'date': fullDate,
+        'startTime': _startTimeController.text,
+        'endTime': _endTimeController.text,
         'status': 'confirmed',
         'createdAt': Timestamp.now()
       });
@@ -72,11 +100,30 @@ class _BookTrainerScreenState extends State<BookTrainerScreen> {
           children: [
             TextField(
               controller: _dateController,
-              decoration: InputDecoration(labelText: "Date (YYYY-MM-DD)"),
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: "Date (YYYY-MM-DD)",
+                suffixIcon: Icon(Icons.calendar_today),
+              ),
+              onTap: _pickDate,
             ),
             TextField(
-              controller: _timeController,
-              decoration: InputDecoration(labelText: "Time (HH:MM)"),
+              controller: _startTimeController,
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: "Start Time (hh:mm AM/PM)",
+                suffixIcon: Icon(Icons.access_time),
+              ),
+              onTap: () => _pickTime(_startTimeController),
+            ),
+            TextField(
+              controller: _endTimeController,
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: "End Time (hh:mm AM/PM)",
+                suffixIcon: Icon(Icons.access_time),
+              ),
+              onTap: () => _pickTime(_endTimeController),
             ),
             SizedBox(height: 20),
             _loading

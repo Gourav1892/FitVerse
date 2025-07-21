@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/dashboard_tile.dart';
 import 'package:fitverse/views/trainer/trainer_bookings_screen.dart';
 import 'package:fitverse/views/trainer/trainer_profile_screen.dart';
+import 'package:fitverse/views/auth/login_screen.dart'; // Make sure this import exists
 
 class TrainerDashboard extends StatelessWidget {
   @override
@@ -15,7 +16,11 @@ class TrainerDashboard extends StatelessWidget {
             icon: Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              Navigator.popUntil(context, (route) => route.isFirst);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => LoginScreen()),
+                    (route) => false,
+              );
             },
           )
         ],

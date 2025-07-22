@@ -4,8 +4,9 @@ import 'RegisterFitnessScreen.dart';
 
 class StepProgressIndicator extends StatelessWidget {
   final int currentStep;
+  final int totalSteps;
 
-  const StepProgressIndicator({required this.currentStep});
+  const StepProgressIndicator({required this.currentStep, required this.totalSteps});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +14,7 @@ class StepProgressIndicator extends StatelessWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(4, (index) {
+          children: List.generate(totalSteps, (index) {
             return Container(
               margin: EdgeInsets.symmetric(horizontal: 5),
               width: 10,
@@ -27,7 +28,7 @@ class StepProgressIndicator extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Center(
-          child: Text("Step ${currentStep + 1} of 4",
+          child: Text("Step ${currentStep + 1} of $totalSteps",
               style: TextStyle(color: Colors.grey.shade600)),
         ),
         SizedBox(height: 20),
@@ -87,6 +88,9 @@ class _RegisterDetailsScreenState extends State<RegisterDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isTrainer = widget.role.toLowerCase() == 'trainer';
+    final int totalSteps = isTrainer ? 3 : 4;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -95,7 +99,7 @@ class _RegisterDetailsScreenState extends State<RegisterDetailsScreen> {
             key: _formKey,
             child: Column(
               children: [
-                StepProgressIndicator(currentStep: 2),
+                StepProgressIndicator(currentStep: 2, totalSteps: totalSteps),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text("Your Personal Details",
@@ -241,6 +245,20 @@ class _RegisterDetailsScreenState extends State<RegisterDetailsScreen> {
                         _showSnackbar("Please select your gender");
                         return;
                       }
+
+                      // Trainer finishes here
+                      if (isTrainer) {
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("✅ Trainer registration complete (submit manually to admin)."),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Trainee proceeds to next step
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -255,7 +273,7 @@ class _RegisterDetailsScreenState extends State<RegisterDetailsScreen> {
                       );
                     }
                   },
-                  child: Text("Next"),
+                  child: Text(isTrainer ? "Finish" : "Next"),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: Colors.blue,

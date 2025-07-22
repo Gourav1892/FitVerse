@@ -28,7 +28,7 @@ class StepProgressIndicator extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Center(
-          child: Text("Step \${currentStep + 1} of 4",
+          child: Text("Step ${currentStep + 1} of 4",
               style: TextStyle(color: Colors.grey.shade600)),
         ),
         SizedBox(height: 20),
@@ -98,7 +98,7 @@ class _RegisterFitnessScreenState extends State<RegisterFitnessScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Failed: \${e.toString()}")),
+        SnackBar(content: Text("❌ Failed: ${e.toString()}")),
       );
     } finally {
       setState(() => _loading = false);

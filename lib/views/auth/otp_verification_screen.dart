@@ -5,9 +5,13 @@ import 'RegisterDetailsScreen.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class StepProgressIndicator extends StatelessWidget {
-  final int currentStep; // 0 to 3
+  final int currentStep;
+  final int totalSteps;
 
-  const StepProgressIndicator({required this.currentStep});
+  const StepProgressIndicator({
+    required this.currentStep,
+    required this.totalSteps,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +19,7 @@ class StepProgressIndicator extends StatelessWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(4, (index) {
+          children: List.generate(totalSteps, (index) {
             return Container(
               margin: EdgeInsets.symmetric(horizontal: 5),
               width: 10,
@@ -28,7 +32,7 @@ class StepProgressIndicator extends StatelessWidget {
           }),
         ),
         SizedBox(height: 10),
-        Text("Step \${currentStep + 1} of 4", style: TextStyle(color: Colors.grey.shade600)),
+        Text("Step ${currentStep + 1} of $totalSteps", style: TextStyle(color: Colors.grey.shade600)),
         SizedBox(height: 20),
       ],
     );
@@ -107,6 +111,8 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    int totalSteps = widget.role == 'trainer' ? 3 : 4;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -115,7 +121,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                StepProgressIndicator(currentStep: 1), // ✅ Step 2 of 4
+                StepProgressIndicator(currentStep: 1, totalSteps: totalSteps),
 
                 Text("Verification Code",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),

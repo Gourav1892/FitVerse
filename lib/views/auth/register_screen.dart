@@ -28,16 +28,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final input = _inputController.text.trim();
 
-    if (selectedRole == 'trainer') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Trainer registration requires admin approval for email/phone.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
     if (_isPhone) {
       if (_fullPhoneNumber == null || !_fullPhoneNumber!.startsWith('+')) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -135,6 +125,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final totalSteps = selectedRole == 'trainer' ? 3 : 4;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -145,7 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (index) {
+                  children: List.generate(totalSteps, (index) {
                     return Container(
                       margin: EdgeInsets.symmetric(horizontal: 5),
                       width: 10,
@@ -159,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 10),
                 Center(
-                  child: Text("Step 1 of 4", style: TextStyle(color: Colors.grey.shade600)),
+                  child: Text("Step 1 of $totalSteps", style: TextStyle(color: Colors.grey.shade600)),
                 ),
                 SizedBox(height: 24),
                 Text("Create Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
